@@ -5,7 +5,8 @@ import { GalleryList } from './ImageGallery.styled';
 
 class ImageGallery extends Component {
   componentDidUpdate(prevProps, prevState) {
-    const { searchInput, page, perPage, onImagesFetch } = this.props;
+    const { searchInput, page, perPage, onImagesFetch, onLoadMore } =
+      this.props;
 
     if (prevProps.searchInput !== searchInput) {
       fetchImages(searchInput, page, perPage)
@@ -14,10 +15,18 @@ class ImageGallery extends Component {
         })
         .catch(error => console.log(error));
     }
+
+    if (prevProps.page !== page && prevProps.searchInput === searchInput) {
+      onLoadMore();
+    }
   }
 
   render() {
-    return <GalleryList>{this.props.children}</GalleryList>;
+    return this.props.searchInput !== '' ? (
+      <GalleryList>{this.props.children}</GalleryList>
+    ) : (
+      <></>
+    );
   }
 }
 
@@ -28,4 +37,5 @@ ImageGallery.propTypes = {
   page: PropTypes.number.isRequired,
   perPage: PropTypes.number.isRequired,
   onImagesFetch: PropTypes.func.isRequired,
+  onLoadMore: PropTypes.func.isRequired,
 };
