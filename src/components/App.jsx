@@ -20,6 +20,22 @@ class App extends Component {
     isLoading: false,
   };
 
+  componentDidUpdate(prevState, prevProps) {
+    const { page, searchInput, perPage } = this.state;
+
+    if (prevProps.searchInput !== searchInput) {
+      fetchImages(searchInput, page, perPage)
+        .then(({ hits, totalHits }) => {
+          this.onImagesFetch(hits, totalHits);
+        })
+        .catch(error => console.log(error));
+    }
+
+    if (prevProps.page !== page && prevProps.searchInput === searchInput) {
+      this.onLoadMore();
+    }
+  }
+
   onSubmit = searchInput => {
     this.setState({
       searchInput,
@@ -97,8 +113,7 @@ class App extends Component {
       images,
       modalUrl,
       showModal,
-      page,
-      perPage,
+
       totalHits,
       isLoading,
     } = this.state;
@@ -106,9 +121,6 @@ class App extends Component {
       onSubmit,
       onOpenModal,
       incrementPage,
-      onImagesFetch,
-      onLoadMore,
-
       handleModalUrl,
       onModalClose,
     } = this;
@@ -117,15 +129,7 @@ class App extends Component {
       <AppContainer>
         <Searchbar onSubmit={onSubmit} />
 
-        <ImageGallery
-          onImagesFetch={onImagesFetch}
-          onLoadMore={onLoadMore}
-          searchInput={searchInput}
-          page={page}
-          perPage={perPage}
-          isLoading={isLoading}
-          images={images}
-        >
+        <ImageGallery searchInput={searchInput}>
           {images &&
             images.map(({ id, webformatURL, tags, largeImageURL }) => (
               <ImageGalleryItem
